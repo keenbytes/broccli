@@ -2,7 +2,7 @@
 
 ----
 
-The nicholasgasior/broccli package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
+The `nicholasgasior/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
 
 ----
 
