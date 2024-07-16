@@ -28,6 +28,9 @@ func TestCLI(t *testing.T) {
 	c := NewCLI("Example", "App", "Author <a@example.com>")
 	cmd1 := c.AddCmd("cmd1", "Prints out a string", func(c *CLI) int {
 		fmt.Fprintf(f, "TESTVALUE:%s%s\n\n", c.Flag("tekst"), c.Flag("alphanumdots"))
+		if c.Flag("bool") == "true" {
+			fmt.Fprintf(f, "BOOL:true")
+		}
 		return 2
 	})
 	cmd1.AddFlag("tekst", "t", "Text", "Text to print", TypeString, IsRequired)
@@ -35,6 +38,8 @@ func TestCLI(t *testing.T) {
 	cmd1.AddFlag("make-required", "r", "", "Make alphanumdots required", TypeBool, 0, OnTrue(func(c *Cmd) {
 		c.flags["alphanumdots"].flags = c.flags["alphanumdots"].flags | IsRequired
 	}))
+	// Boolean should work fine even when the optional OnTrue is not passed
+	cmd1.AddFlag("bool", "b", "", "Bool value", TypeBool, 0)
 
 	os.Args = []string{"test", "cmd1"}
 	got := c.Run()
@@ -66,7 +71,7 @@ func TestCLI(t *testing.T) {
 		t.Errorf("CLI.Run() should have returned 1 instead of %d", got)
 	}
 
-	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "--alphanumdots", "aZ0.9"}
+	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "--alphanumdots", "aZ0.9", "-b"}
 	got = c.Run()
 	if got != 2 {
 		t.Errorf("CLI.Run() should have returned 2 instead of %d", got)
@@ -83,6 +88,9 @@ func TestCLI(t *testing.T) {
 	}
 
 	if !strings.Contains(string(b), "TESTVALUE:Tekst123aZ0.9") {
+		t.Errorf("Cmd handler failed to work")
+	}
+	if !strings.Contains(string(b), "BOOL:true") {
 		t.Errorf("Cmd handler failed to work")
 	}
 }
