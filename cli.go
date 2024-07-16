@@ -230,9 +230,8 @@ func (c *CLI) processOnTrue(cmd *Cmd, fs []string, nflags map[string]interface{}
 			continue
 		}
 
-		c.parsedFlags[name] = "false"
-		if *(nflags[name]).(*bool) == true || *(aflags[cmd.flags[name].alias]).(*bool) == true {
-			c.parsedFlags[name] = "true"
+		// OnTrue is called when a flag is true
+		if *(nflags[name]).(*bool) || *(aflags[cmd.flags[name].alias]).(*bool) {
 			cmd.flags[name].options.onTrue(cmd)
 		}
 	}
@@ -243,6 +242,10 @@ func (c *CLI) processFlags(cmd *Cmd, fs []string, nflags map[string]interface{},
 		flag := cmd.flags[name]
 
 		if flag.valueType == TypeBool {
+			c.parsedFlags[name] = "false"
+			if *(nflags[name]).(*bool) || *(aflags[cmd.flags[name].alias]).(*bool) {
+				c.parsedFlags[name] = "true"
+			}
 			continue
 		}
 
