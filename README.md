@@ -1,8 +1,8 @@
-# go-broccli
+# broccli
 
 ----
 
-The `nicholasgasior/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
+The `mikolajgs/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
 
 ----
 
@@ -13,7 +13,7 @@ Ensure you have your
 run the following:
 
 ```
-go get -u github.com/nicholasgasior/go-broccli/v2
+go get -u github.com/mikolajgs/broccli
 ```
 
 ### Example
