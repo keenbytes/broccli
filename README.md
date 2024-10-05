@@ -1,5 +1,7 @@
 # broccli
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/mikolajgs/broccli.svg)](https://pkg.go.dev/github.com/mikolajgs/broccli) [![Go Report Card](https://goreportcard.com/badge/github.com/mikolajgs/broccli)](https://goreportcard.com/report/github.com/mikolajgs/broccli) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mikolajgs/broccli?sort=semver)
+
 ----
 
 The `mikolajgs/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
