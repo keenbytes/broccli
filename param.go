@@ -16,7 +16,7 @@ import (
 type param struct {
 	name      string
 	alias     string
-	helpValue string
+	valuePlaceholder string
 	desc      string
 	valueType int64
 	flags     int64
@@ -31,7 +31,7 @@ func (p *param) helpLine() string {
 	} else {
 		s += fmt.Sprintf(" -%s,\t", p.alias)
 	}
-	s += fmt.Sprintf(" --%s %s \t%s\n", p.name, p.helpValue, p.desc)
+	s += fmt.Sprintf(" --%s %s \t%s\n", p.name, p.valuePlaceholder, p.desc)
 	return s
 }
 
@@ -39,7 +39,7 @@ func (p *param) helpLine() string {
 func (p *param) validateValue(v string) error {
 	// empty, for every time except bool
 	if p.valueType != TypeBool && (p.flags&IsRequired > 0) && v == "" {
-		return errors.New("Missing value")
+		return errors.New("missing value")
 	}
 
 	// string does not need any additional checks apart from the above one
@@ -58,34 +58,34 @@ func (p *param) validateValue(v string) error {
 		if err != nil {
 			if os.IsNotExist(err) {
 				if p.flags&IsExistent > 0 {
-					return errors.New(fmt.Sprintf("File %s does not exist", v))
+					return fmt.Errorf("file %s does not exist", v)
 				} else {
 					return nil
 				}
 			} else {
-				return errors.New(fmt.Sprintf("File %s cannot be opened for info", v))
+				return fmt.Errorf("file %s cannot be opened for info", v)
 			}
 		}
 
 		if p.flags&IsNotExistent > 0 {
-			return errors.New(fmt.Sprintf("File %s already exists", v))
+			return fmt.Errorf("file %s already exists", v)
 		}
 
 		if !fileInfo.Mode().IsRegular() && (p.flags&IsRegularFile > 0) {
-			return errors.New(fmt.Sprintf("Path %s is not a regular file", v))
+			return fmt.Errorf("path %s is not a regular file", v)
 		}
 
 		if !fileInfo.Mode().IsDir() && (p.flags&IsDirectory > 0) {
-			return errors.New(fmt.Sprintf("Path %s is not a directory", v))
+			return fmt.Errorf("path %s is not a directory", v)
 		}
 
 		if (p.flags&IsRegularFile > 0) && (p.flags&IsValidJSON > 0) {
 			dat, err := os.ReadFile(v)
 			if err != nil {
-				return errors.New(fmt.Sprintf("File %s cannot be opened for JSON validation:", v))
+				return fmt.Errorf("file %s cannot be opened for JSON validation: %w", v, err)
 			}
 			if !json.Valid(dat) {
-				return errors.New(fmt.Sprintf("File %s is not a valid JSON", v))
+				return fmt.Errorf("file %s is not a valid JSON", v)
 			}
 		}
 
@@ -114,7 +114,7 @@ func (p *param) validateValue(v string) error {
 		}
 		reType = fmt.Sprintf("[0-9a-zA-Z%s]+", reExtraChars)
 	default:
-		return errors.New("Invalid type")
+		return errors.New("invalid type")
 	}
 
 	// create the final regexp depending on if single or many values are allowed
@@ -133,7 +133,7 @@ func (p *param) validateValue(v string) error {
 	}
 	m, err := regexp.MatchString(reValue, v)
 	if err != nil || !m {
-		return errors.New("Invalid value")
+		return errors.New("invalid value")
 	}
 
 	return nil
