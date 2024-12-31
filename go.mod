@@ -1,3 +1,3 @@
-module github.com/mikolajgs/broccli
+module github.com/go-phings/broccli
 
 go 1.22.1

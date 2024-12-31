@@ -25,13 +25,12 @@ type CLI struct {
 	parsedArgs  map[string]string
 }
 
-// NewCLI returns pointer to a new CLI instance with specified name, description and author.  All these are used when
-// displaying syntax help.
-func NewCLI(n string, d string, a string) *CLI {
+// NewCLI returns pointer to a new CLI instance.  Name, description and author are displayed on the syntax screen.
+func NewCLI(name string, description string, author string) *CLI {
 	c := &CLI{
-		name:        n,
-		desc:        d,
-		author:      a,
+		name:        name,
+		desc:        description,
+		author:      author,
 		cmds:        map[string]*Cmd{},
 		envVars:     map[string]*param{},
 		parsedFlags: map[string]string{},
@@ -43,41 +42,41 @@ func NewCLI(n string, d string, a string) *CLI {
 // AddCmd returns pointer to a new command with specified name, description and handler.  Handler is a function that
 // gets called when command is executed.
 // Additionally, there is a set of options that can be passed as arguments.  Search for cmdOption for more info.
-func (c *CLI) AddCmd(n string, d string, h func(cli *CLI) int, opts ...cmdOption) *Cmd {
-	c.cmds[n] = &Cmd{
-		name:    n,
-		desc:    d,
+func (c *CLI) AddCmd(name string, description string, handler func(cli *CLI) int, opts ...cmdOption) *Cmd {
+	c.cmds[name] = &Cmd{
+		name:    name,
+		desc:    description,
 		flags:   map[string]*param{},
 		args:    map[string]*param{},
 		envVars: map[string]*param{},
-		handler: h,
+		handler: handler,
 		options: cmdOptions{},
 	}
 	for _, o := range opts {
-		o(&(c.cmds[n].options))
+		o(&(c.cmds[name].options))
 	}
-	return c.cmds[n]
+	return c.cmds[name]
 }
 
 // AddEnvVar returns pointer to a new environment variable that is required to run every command.
 // Method requires name, eg. MY_VAR, and description.
-func (c *CLI) AddEnvVar(n string, d string) {
-	c.envVars[n] = &param{
-		name:    n,
-		desc:    d,
+func (c *CLI) AddEnvVar(name string, description string) {
+	c.envVars[name] = &param{
+		name:    name,
+		desc:    description,
 		flags:   IsRequired,
 		options: paramOptions{},
 	}
 }
 
 // Flag returns value of flag.
-func (c *CLI) Flag(n string) string {
-	return c.parsedFlags[n]
+func (c *CLI) Flag(name string) string {
+	return c.parsedFlags[name]
 }
 
 // Arg returns value of arg.
-func (c *CLI) Arg(n string) string {
-	return c.parsedArgs[n]
+func (c *CLI) Arg(name string) string {
+	return c.parsedArgs[name]
 }
 
 // Run parses the arguments, validates them and executes command handler.
@@ -282,7 +281,7 @@ func (c *CLI) processArgs(cmd *Cmd, as []string, args []string) int {
 
 		err := cmd.args[n].validateValue(v)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: %s %s: %s\n", c.getParamTypeName(ParamArg), cmd.args[n].helpValue, err.Error())
+			fmt.Fprintf(os.Stderr, "ERROR: %s %s: %s\n", c.getParamTypeName(ParamArg), cmd.args[n].valuePlaceholder, err.Error())
 			cmd.printHelp()
 			return 1
 		}
