@@ -20,7 +20,9 @@ The `go-phings/broccli` package simplifies command line interface management. It
 * [Features + Roadmap](#features)
 
 ## Sample code
-The following code snippet from another tiny project shows how the module can be used.
+Example dummy application can be found in `cmd/example1` directory.
+
+However, the following code snippet from another tiny project shows how the module can be used.
 
 ```go
 // create new CLI object
