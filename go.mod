@@ -1,5 +1,4 @@
-module gopkg.pl/phings/broccli
+module gopkg.pl/phings/broccli/v2
 
 go 1.22.1
 
-require github.com/go-phings/broccli v2.0.0+incompatible
