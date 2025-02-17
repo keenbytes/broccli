@@ -33,13 +33,13 @@ func (c *Cmd) AddFlag(name string, alias string, valuePlaceholder string, descri
 		c.flags = map[string]*param{}
 	}
 	c.flags[name] = &param{
-		name:      name,
-		alias:     alias,
-		desc:      description,
+		name:             name,
+		alias:            alias,
+		desc:             description,
 		valuePlaceholder: valuePlaceholder,
-		valueType: types,
-		flags:     flags,
-		options:   paramOptions{},
+		valueType:        types,
+		flags:            flags,
+		options:          paramOptions{},
 	}
 	for _, o := range opts {
 		o(&(c.flags[name].options))
@@ -56,12 +56,12 @@ func (c *Cmd) AddArg(name string, valuePlaceholder string, description string, t
 		c.args = map[string]*param{}
 	}
 	c.args[name] = &param{
-		name:      name,
-		desc:      description,
+		name:             name,
+		desc:             description,
 		valuePlaceholder: valuePlaceholder,
-		valueType: types,
-		flags:     flags,
-		options:   paramOptions{},
+		valueType:        types,
+		flags:            flags,
+		options:          paramOptions{},
 	}
 	if c.argsOrder == nil {
 		c.argsOrder = make([]string, 10)

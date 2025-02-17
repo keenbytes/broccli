@@ -2,45 +2,40 @@ package broccli
 
 const (
 	// Command param type
-	ParamFlag   = 1
-	ParamArg    = 2
-	ParamEnvVar = 3
+	_         = iota
+	ParamFlag = iota + 1
+	ParamArg
+	ParamEnvVar
+)
 
+const (
 	// Value types
-	TypeString       = 0
-	TypeBool         = 1
-	TypeInt          = 2
-	TypeFloat        = 3
-	TypeAlphanumeric = 4
-	TypePathFile     = 5
+	TypeString = iota * 1
+	TypeBool
+	TypeInt
+	TypeFloat
+	TypeAlphanumeric
+	TypePathFile
+)
 
+const (
+	_ = 1 << iota
 	// Validation
-	// IsRequired means that the value is required
-	IsRequired = 1
-	// IsExistent is used with TypePathFile and requires file to exist
-	IsExistent = 2
-	// IsNotExistent is used with TypePathFile and requires file not to exist
-	IsNotExistent = 4
-	// IsDirectory is used with TypePathFile and requires file to be a directory
-	IsDirectory = 8
-	// IsRegularFile is used with TypePathFile and requires file to be a regular file
-	IsRegularFile = 16
-	// IsValidJSON is used with TypeString or TypePathFile with RegularFile to check if the contents are a valid JSON
-	IsValidJSON = 32
+	IsRequired    // IsRequired means that the value is required
+	IsExistent    // IsExistent is used with TypePathFile and requires file to exist
+	IsNotExistent // IsNotExistent is used with TypePathFile and requires file not to exist
+	IsDirectory   // IsDirectory is used with TypePathFile and requires file to be a directory
+	IsRegularFile // IsRegularFile is used with TypePathFile and requires file to be a regular file
+	IsValidJSON   // IsValidJSON is used with TypeString or TypePathFile with RegularFile to check if the contents are a valid JSON
 
-	// AllowDots can be used only with TypeAlphanumeric and additionally allows flag to have dots.
-	AllowDots = 2048
-	// AllowUnderscore can be used only with TypeAlphanumeric and additionally allows flag to have underscore chars.
-	AllowUnderscore = 4096
-	// AllowHyphen can be used only with TypeAlphanumeric and additionally allows flag to have hyphen chars.
-	AllowHyphen = 8192
+	AllowDots       // AllowDots can be used only with TypeAlphanumeric and additionally allows flag to have dots.
+	AllowUnderscore // AllowUnderscore can be used only with TypeAlphanumeric and additionally allows flag to have underscore chars.
+	AllowHyphen     // AllowHyphen can be used only with TypeAlphanumeric and additionally allows flag to have hyphen chars.
 
 	// AllowMultipleValues allows param to have more than one value separated by comma by default.
 	// For example: AllowMany with TypeInt allows values like: 123 or 123,455,666 or 12,222
 	// AllowMany works only with TypeInt, TypeFloat and TypeAlphanumeric.
-	AllowMultipleValues = 16384
-	// SeparatorColon works with AllowMultipleValues and sets colon to be the value separator, instead of colon.
-	SeparatorColon = 32768
-	// SeparatorSemiColon works with AllowMultipleValues and sets semi-colon to be the value separator.
-	SeparatorSemiColon = 65536
+	AllowMultipleValues
+	SeparatorColon     // SeparatorColon works with AllowMultipleValues and sets colon to be the value separator, instead of colon.
+	SeparatorSemiColon // SeparatorSemiColon works with AllowMultipleValues and sets semi-colon to be the value separator.
 )
