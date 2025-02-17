@@ -2,8 +2,8 @@ package broccli
 
 const (
 	// Command param type
-	_         = iota
-	ParamFlag = iota + 1
+	_ = iota * 1
+	ParamFlag
 	ParamArg
 	ParamEnvVar
 )
