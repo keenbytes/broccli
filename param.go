@@ -14,13 +14,13 @@ import (
 // Additional characters are used with type of TypeAlphanumeric to allow dots, underscore etc.  Hence, the value of that
 // arg could be '._-'.
 type param struct {
-	name      string
-	alias     string
+	name             string
+	alias            string
 	valuePlaceholder string
-	desc      string
-	valueType int64
-	flags     int64
-	options   paramOptions
+	desc             string
+	valueType        int64
+	flags            int64
+	options          paramOptions
 }
 
 // helpLine returns param usage info that is used when printing help.

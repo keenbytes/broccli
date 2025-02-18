@@ -1,10 +1,10 @@
 # broccli
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/go-phings/broccli.svg)](https://pkg.go.dev/github.com/go-phings/broccli) [![Go Report Card](https://goreportcard.com/badge/github.com/go-phings/broccli)](https://goreportcard.com/report/github.com/go-phings/broccli)
+[![Go Reference](https://pkg.go.dev/badge/gopkg.pl/phings/broccli.svg)](https://pkg.go.dev/gopkg.pl/phings/broccli) [![Go Report Card](https://goreportcard.com/badge/gopkg.pl/phings/broccli)](https://goreportcard.com/report/gopkg.pl/phings/broccli)
 
 ----
 
-The `go-phings/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
+The `phings/broccli` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
 
 ----
 
@@ -23,6 +23,11 @@ The `go-phings/broccli` package simplifies command line interface management. It
 Example dummy application can be found in `cmd/example1` directory.
 
 However, the following code snippet from another tiny project shows how the module can be used.
+
+Import the code with the following URL:
+```go
+import "gopkg.pl/phings/broccli"
+```
 
 ```go
 // create new CLI object
