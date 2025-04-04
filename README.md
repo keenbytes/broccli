@@ -1,6 +1,6 @@
 # broccli
 
-[![Go Reference](https://pkg.go.dev/badge/gopkg.pl/phings/broccli.svg)](https://pkg.go.dev/gopkg.pl/phings/broccli) [![Go Report Card](https://goreportcard.com/badge/gopkg.pl/phings/broccli)](https://goreportcard.com/report/gopkg.pl/phings/broccli)
+[![Go Reference](https://pkg.go.dev/badge/gopkg.pl/phings/broccli/v2.svg)](https://pkg.go.dev/gopkg.pl/phings/broccli/v2) [![Go Report Card](https://goreportcard.com/badge/gopkg.pl/phings/broccli/v2)](https://goreportcard.com/report/gopkg.pl/phings/broccli/v2)
 
 ----
 
@@ -26,7 +26,7 @@ However, the following code snippet from another tiny project shows how the modu
 
 Import the code with the following URL:
 ```go
-import "gopkg.pl/phings/broccli"
+import "gopkg.pl/phings/broccli/v2"
 ```
 
 ```go
