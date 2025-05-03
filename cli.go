@@ -1,9 +1,10 @@
 package broccli
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"reflect"
@@ -11,96 +12,96 @@ import (
 	"text/tabwriter"
 )
 
-// CLI is main CLI application definition.
+// Broccli is main CLI application definition.
 // It has a name, description, author which are printed out to the screen in the usage syntax.
-// Each CLI have commands (represented by Cmd).  Optionally, it is possible to require environment
+// Each CLI have commands (represented by Command).  Optionally, it is possible to require environment
 // variables.
-type CLI struct {
+type Broccli struct {
 	name        string
-	desc        string
+	usage string
 	author      string
-	cmds        map[string]*Cmd
-	envVars     map[string]*param
+	commands        map[string]*Command
+	env     map[string]*param
 	parsedFlags map[string]string
 	parsedArgs  map[string]string
 }
 
-// NewCLI returns pointer to a new CLI instance.  Name, description and author are displayed on the syntax screen.
-func NewCLI(name string, description string, author string) *CLI {
-	c := &CLI{
+// NewBroccli returns pointer to a new Broccli instance.  Name, usage and author are displayed on the syntax screen.
+func NewBroccli(name, usage, author string) *Broccli {
+	c := &Broccli{
 		name:        name,
-		desc:        description,
+		usage: usage,
 		author:      author,
-		cmds:        map[string]*Cmd{},
-		envVars:     map[string]*param{},
+		commands:        map[string]*Command{},
+		env:     map[string]*param{},
 		parsedFlags: map[string]string{},
 		parsedArgs:  map[string]string{},
 	}
 	return c
 }
 
-// AddCmd returns pointer to a new command with specified name, description and handler.  Handler is a function that
+// Command returns pointer to a new command with specified name, usage and handler.  Handler is a function that
 // gets called when command is executed.
-// Additionally, there is a set of options that can be passed as arguments.  Search for cmdOption for more info.
-func (c *CLI) AddCmd(name string, description string, handler func(cli *CLI) int, opts ...cmdOption) *Cmd {
-	c.cmds[name] = &Cmd{
+// Additionally, there is a set of options that can be passed as arguments.  Search for commandOption for more info.
+func (c *Broccli) Command(name, usage string, handler func(ctx context.Context, cli *Broccli) int, opts ...commandOption) *Command {
+	c.commands[name] = &Command{
 		name:    name,
-		desc:    description,
+		usage:    usage,
 		flags:   map[string]*param{},
 		args:    map[string]*param{},
-		envVars: map[string]*param{},
+		env: map[string]*param{},
 		handler: handler,
-		options: cmdOptions{},
+		options: commandOptions{},
 	}
 	for _, o := range opts {
-		o(&(c.cmds[name].options))
+		o(&(c.commands[name].options))
 	}
-	return c.cmds[name]
+	return c.commands[name]
 }
 
-// AddEnvVar returns pointer to a new environment variable that is required to run every command.
-// Method requires name, eg. MY_VAR, and description.
-func (c *CLI) AddEnvVar(name string, description string) {
-	c.envVars[name] = &param{
+// Env returns pointer to a new environment variable that is required to run every command.
+// Method requires name, eg. MY_VAR, and usage.
+func (c *Broccli) Env(name string, usage string) {
+	c.env[name] = &param{
 		name:    name,
-		desc:    description,
+		usage:    usage,
 		flags:   IsRequired,
 		options: paramOptions{},
 	}
 }
 
 // Flag returns value of flag.
-func (c *CLI) Flag(name string) string {
+func (c *Broccli) Flag(name string) string {
 	return c.parsedFlags[name]
 }
 
 // Arg returns value of arg.
-func (c *CLI) Arg(name string) string {
+func (c *Broccli) Arg(name string) string {
 	return c.parsedArgs[name]
 }
 
 // Run parses the arguments, validates them and executes command handler.
 // In case of invalid arguments, error is printed to stderr and 1 is returned.  Return value should be treated as exit
 // code.
-func (c *CLI) Run() int {
+func (c *Broccli) Run(ctx context.Context) int {
 	// display help, first arg is binary filename
 	if len(os.Args) < 2 || os.Args[1] == "-h" || os.Args[1] == "--help" {
 		c.printHelp()
 		return 0
 	}
-	for _, n := range c.sortedCmds() {
+	for _, n := range c.sortedCommands() {
 		if n != os.Args[1] {
 			continue
 		}
 		// display command help
 		if len(os.Args) > 2 && (os.Args[2] == "-h" || os.Args[2] == "--help") {
-			c.cmds[n].printHelp()
+			c.commands[n].printHelp()
 			return 0
 		}
 
 		// check required environment variables
-		if len(c.envVars) > 0 {
-			for env, param := range c.envVars {
+		if len(c.env) > 0 {
+			for env, param := range c.env {
 				v := os.Getenv(env)
 				param.flags = param.flags | IsRequired
 				err := param.validateValue(v)
@@ -113,21 +114,21 @@ func (c *CLI) Run() int {
 		}
 
 		// parse and validate all the flags and args
-		exitCode := c.parseFlags(c.cmds[n])
+		exitCode := c.parseFlags(c.commands[n])
 		if exitCode > 0 {
 			return exitCode
 		}
 
-		return c.cmds[n].handler(c)
+		return c.commands[n].handler(ctx, c)
 	}
 
 	// command not found
-	c.printInvalidCmd(os.Args[1])
+	c.printInvalidCommand(os.Args[1])
 	return 1
 }
 
-func (c *CLI) sortedCmds() []string {
-	cmds := reflect.ValueOf(c.cmds).MapKeys()
+func (c *Broccli) sortedCommands() []string {
+	cmds := reflect.ValueOf(c.commands).MapKeys()
 	scmds := make([]string, len(cmds))
 	for i, cmd := range cmds {
 		scmds[i] = cmd.String()
@@ -136,8 +137,8 @@ func (c *CLI) sortedCmds() []string {
 	return scmds
 }
 
-func (c *CLI) sortedEnvVars() []string {
-	evs := reflect.ValueOf(c.envVars).MapKeys()
+func (c *Broccli) sortedEnv() []string {
+	evs := reflect.ValueOf(c.env).MapKeys()
 	sevs := make([]string, len(evs))
 	for i, ev := range evs {
 		sevs[i] = ev.String()
@@ -146,16 +147,16 @@ func (c *CLI) sortedEnvVars() []string {
 	return sevs
 }
 
-func (c *CLI) printHelp() {
-	fmt.Fprintf(os.Stdout, "%s by %s\n%s\n\n", c.name, c.author, c.desc)
+func (c *Broccli) printHelp() {
+	fmt.Fprintf(os.Stdout, "%s by %s\n%s\n\n", c.name, c.author, c.usage)
 	fmt.Fprintf(os.Stdout, "Usage: %s COMMAND\n\n", path.Base(os.Args[0]))
 
-	if len(c.envVars) > 0 {
+	if len(c.env) > 0 {
 		fmt.Fprintf(os.Stdout, "Required environment variables:\n")
 		w := new(tabwriter.Writer)
 		w.Init(os.Stdout, 8, 8, 0, '\t', 0)
-		for _, n := range c.sortedEnvVars() {
-			fmt.Fprintf(w, "%s\t%s\n", n, c.envVars[n].desc)
+		for _, n := range c.sortedEnv() {
+			fmt.Fprintf(w, "%s\t%s\n", n, c.env[n].usage)
 		}
 		w.Flush()
 	}
@@ -163,25 +164,25 @@ func (c *CLI) printHelp() {
 	fmt.Fprintf(os.Stdout, "Commands:\n")
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 10, 8, 0, '\t', 0)
-	for _, n := range c.sortedCmds() {
-		fmt.Fprintf(w, "  %s\t%s\n", n, c.cmds[n].desc)
+	for _, n := range c.sortedCommands() {
+		fmt.Fprintf(w, "  %s\t%s\n", n, c.commands[n].usage)
 	}
 	w.Flush()
 
 	fmt.Fprintf(os.Stdout, "\nRun '%s COMMAND --help' for command syntax.\n", path.Base(os.Args[0]))
 }
 
-func (c *CLI) printInvalidCmd(cmd string) {
+func (c *Broccli) printInvalidCommand(cmd string) {
 	fmt.Fprintf(os.Stderr, "Invalid command: %s\n\n", cmd)
 	c.printHelp()
 }
 
 // getFlagSetPtrs creates flagset instance, parses flags and returns list of pointers to results of parsing the flags.
-func (c *CLI) getFlagSetPtrs(cmd *Cmd) (map[string]interface{}, map[string]interface{}, []string) {
+func (c *Broccli) getFlagSetPtrs(cmd *Command) (map[string]interface{}, map[string]interface{}, []string) {
 	fset := flag.NewFlagSet("flagset", flag.ContinueOnError)
 	// nothing should come out of flagset
 	fset.Usage = func() {}
-	fset.SetOutput(ioutil.Discard)
+	fset.SetOutput(io.Discard)
 
 	nameFlags := make(map[string]interface{})
 	aliasFlags := make(map[string]interface{})
@@ -200,12 +201,12 @@ func (c *CLI) getFlagSetPtrs(cmd *Cmd) (map[string]interface{}, map[string]inter
 	return nameFlags, aliasFlags, fset.Args()
 }
 
-func (c *CLI) checkEnvVars(cmd *Cmd) int {
-	if len(cmd.envVars) == 0 {
+func (c *Broccli) checkEnv(cmd *Command) int {
+	if len(cmd.env) == 0 {
 		return 0
 	}
 
-	for env, envVar := range cmd.envVars {
+	for env, envVar := range cmd.env {
 		v := os.Getenv(env)
 		envVar.flags = envVar.flags | IsRequired
 		err := envVar.validateValue(v)
@@ -219,7 +220,7 @@ func (c *CLI) checkEnvVars(cmd *Cmd) int {
 	return 0
 }
 
-func (c *CLI) processOnTrue(cmd *Cmd, fs []string, nflags map[string]interface{}, aflags map[string]interface{}) {
+func (c *Broccli) processOnTrue(cmd *Command, fs []string, nflags map[string]interface{}, aflags map[string]interface{}) {
 	for _, name := range fs {
 		if cmd.flags[name].valueType != TypeBool {
 			continue
@@ -236,7 +237,7 @@ func (c *CLI) processOnTrue(cmd *Cmd, fs []string, nflags map[string]interface{}
 	}
 }
 
-func (c *CLI) processFlags(cmd *Cmd, fs []string, nflags map[string]interface{}, aflags map[string]interface{}) int {
+func (c *Broccli) processFlags(cmd *Command, fs []string, nflags map[string]interface{}, aflags map[string]interface{}) int {
 	for _, name := range fs {
 		flag := cmd.flags[name]
 
@@ -272,7 +273,7 @@ func (c *CLI) processFlags(cmd *Cmd, fs []string, nflags map[string]interface{},
 	return 0
 }
 
-func (c *CLI) processArgs(cmd *Cmd, as []string, args []string) int {
+func (c *Broccli) processArgs(cmd *Command, as []string, args []string) int {
 	for i, n := range as {
 		v := ""
 		if len(args) >= i+1 {
@@ -292,7 +293,7 @@ func (c *CLI) processArgs(cmd *Cmd, as []string, args []string) int {
 	return 0
 }
 
-func (c *CLI) processOnPostValidation(cmd *Cmd) int {
+func (c *Broccli) processOnPostValidation(cmd *Command) int {
 	if cmd.options.onPostValidation == nil {
 		return 0
 	}
@@ -307,9 +308,9 @@ func (c *CLI) processOnPostValidation(cmd *Cmd) int {
 	return 0
 }
 
-func (c *CLI) parseFlags(cmd *Cmd) int {
+func (c *Broccli) parseFlags(cmd *Command) int {
 	// check required environment variables
-	if exitCode := c.checkEnvVars(cmd); exitCode != 0 {
+	if exitCode := c.checkEnv(cmd); exitCode != 0 {
 		return exitCode
 	}
 
@@ -337,7 +338,7 @@ func (c *CLI) parseFlags(cmd *Cmd) int {
 	return 0
 }
 
-func (c *CLI) getParamTypeName(t int8) string {
+func (c *Broccli) getParamTypeName(t int8) string {
 	if t == ParamArg {
 		return "Argument"
 	}

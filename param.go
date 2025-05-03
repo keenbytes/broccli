@@ -9,7 +9,7 @@ import (
 )
 
 // param represends a value and it is used for flags, args and environment variables.
-// It has a name, alias, description, value that is shown when printing help, specific type (eg. TypeBool or TypeInt),
+// It has a name, alias, usage, value that is shown when printing help, specific type (eg. TypeBool or TypeInt),
 // If more than one value shoud be allowed, eg. '1,2,3' means "multiple integers" and the separator here is ','.
 // Additional characters are used with type of TypeAlphanumeric to allow dots, underscore etc.  Hence, the value of that
 // arg could be '._-'.
@@ -17,7 +17,7 @@ type param struct {
 	name             string
 	alias            string
 	valuePlaceholder string
-	desc             string
+	usage             string
 	valueType        int64
 	flags            int64
 	options          paramOptions
@@ -31,7 +31,7 @@ func (p *param) helpLine() string {
 	} else {
 		s += fmt.Sprintf(" -%s,\t", p.alias)
 	}
-	s += fmt.Sprintf(" --%s %s \t%s\n", p.name, p.valuePlaceholder, p.desc)
+	s += fmt.Sprintf(" --%s %s \t%s\n", p.name, p.valuePlaceholder, p.usage)
 	return s
 }
 

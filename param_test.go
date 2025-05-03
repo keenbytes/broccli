@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func h(c *CLI) int {
+func h(c *Broccli) int {
 	return 0
 }
 

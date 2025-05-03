@@ -1,13 +1,13 @@
 package broccli
 
-type cmdOptions struct {
-	onPostValidation func(c *Cmd) error
+type commandOptions struct {
+	onPostValidation func(c *Command) error
 }
 
-type cmdOption func(opts *cmdOptions)
+type commandOption func(opts *commandOptions)
 
-func OnPostValidation(fn func(c *Cmd) error) cmdOption {
-	return func(opts *cmdOptions) {
+func OnPostValidation(fn func(c *Command) error) commandOption {
+	return func(opts *commandOptions) {
 		opts.onPostValidation = fn
 	}
 }

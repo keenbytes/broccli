@@ -1,6 +1,7 @@
 package broccli
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -25,54 +26,54 @@ func TestCLI(t *testing.T) {
 	os.Stdout = devNull
 	os.Stderr = devNull
 
-	c := NewCLI("Example", "App", "Author <a@example.com>")
-	cmd1 := c.AddCmd("cmd1", "Prints out a string", func(c *CLI) int {
+	c := NewBroccli("Example", "App", "Author <a@example.com>")
+	cmd1 := c.Command("cmd1", "Prints out a string", func(ctx context.Context, c *Broccli) int {
 		fmt.Fprintf(f, "TESTVALUE:%s%s\n\n", c.Flag("tekst"), c.Flag("alphanumdots"))
 		if c.Flag("bool") == "true" {
 			fmt.Fprintf(f, "BOOL:true")
 		}
 		return 2
 	})
-	cmd1.AddFlag("tekst", "t", "Text", "Text to print", TypeString, IsRequired)
-	cmd1.AddFlag("alphanumdots", "a", "Alphanum with dots", "Can have dots", TypeAlphanumeric, AllowDots)
-	cmd1.AddFlag("make-required", "r", "", "Make alphanumdots required", TypeBool, 0, OnTrue(func(c *Cmd) {
+	cmd1.Flag("tekst", "t", "Text", "Text to print", TypeString, IsRequired)
+	cmd1.Flag("alphanumdots", "a", "Alphanum with dots", "Can have dots", TypeAlphanumeric, AllowDots)
+	cmd1.Flag("make-required", "r", "", "Make alphanumdots required", TypeBool, 0, OnTrue(func(c *Command) {
 		c.flags["alphanumdots"].flags = c.flags["alphanumdots"].flags | IsRequired
 	}))
 	// Boolean should work fine even when the optional OnTrue is not passed
-	cmd1.AddFlag("bool", "b", "", "Bool value", TypeBool, 0)
+	cmd1.Flag("bool", "b", "", "Bool value", TypeBool, 0)
 
 	os.Args = []string{"test", "cmd1"}
-	got := c.Run()
+	got := c.Run(context.Background())
 	if got != 1 {
 		t.Errorf("CLI.Run() should have returned 1 instead of %d", got)
 	}
 
 	os.Args = []string{"test", "cmd1", "-t", ""}
-	got = c.Run()
+	got = c.Run(context.Background())
 	if got != 1 {
 		t.Errorf("CLI.Run() should have returned 1 instead of %d", got)
 	}
 
 	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "--alphanumdots"}
-	got = c.Run()
+	got = c.Run(context.Background())
 	if got != 2 {
 		t.Errorf("CLI.Run() should have returned 2 instead of %d", got)
 	}
 
 	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "-r"}
-	got = c.Run()
+	got = c.Run(context.Background())
 	if got != 1 {
 		t.Errorf("CLI.Run() should have returned 1 instead of %d", got)
 	}
 
 	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "--alphanumdots", "aZ0-9"}
-	got = c.Run()
+	got = c.Run(context.Background())
 	if got != 1 {
 		t.Errorf("CLI.Run() should have returned 1 instead of %d", got)
 	}
 
 	os.Args = []string{"test", "cmd1", "--tekst", "Tekst123", "--alphanumdots", "aZ0.9", "-b"}
-	got = c.Run()
+	got = c.Run(context.Background())
 	if got != 2 {
 		t.Errorf("CLI.Run() should have returned 2 instead of %d", got)
 	}
