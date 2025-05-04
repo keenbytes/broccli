@@ -116,7 +116,7 @@ Command may require environment variables. `Env` can be called to setup environm
 See sample code that does that below.
 
 ```go
-func startHandler(c *broccli.CLI) int {
+func startHandler(ctx context.Context, c *broccli.CLI) int {
 	fmt.Fprint(os.Stdout, "Starting with level %s...", c.Arg("level"))
     fmt.Fprint(os.Stdout, "Writing moves to file %s...", c.Flag("somefile"))
 	return 0
