@@ -4,7 +4,7 @@
 
 ----
 
-The `mikogs/broccli/v3` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
+The `keenbytes/broccli/v3` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
 
 
 :warning: `v3` is not compatible with `v2`. The latest version requires a context in handlers and when calling `Run` method. Also
