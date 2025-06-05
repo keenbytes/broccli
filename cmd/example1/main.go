@@ -8,7 +8,7 @@ import (
 
 	rand "math/rand/v2"
 
-	"github.com/go-phings/broccli"
+	"github.com/keenbytes/broccli/v3"
 )
 
 func main() {

@@ -1,6 +1,6 @@
 # broccli
 
-[![Go Reference](https://pkg.go.dev/badge/gopkg.pl/mikogs/broccli/v3.svg)](https://pkg.go.dev/gopkg.pl/mikogs/broccli/v3) [![Go Report Card](https://goreportcard.com/badge/gopkg.pl/mikogs/broccli/v3)](https://goreportcard.com/report/gopkg.pl/mikogs/broccli/v3)
+[![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/broccli/v3.svg)](https://pkg.go.dev/github.com/keenbytes/broccli/v3) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/broccli/v3)](https://goreportcard.com/report/github.com/keenbytes/broccli/v3)
 
 ----
 
@@ -30,7 +30,7 @@ However, the following code snippet from another tiny project shows how the modu
 
 Import the code with the following URL:
 ```go
-import "gopkg.pl/mikogs/broccli/v3"
+import "github.com/keenbytes/broccli/v3"
 ```
 
 ```go
