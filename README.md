@@ -2,6 +2,8 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/broccli/v3.svg)](https://pkg.go.dev/github.com/keenbytes/broccli/v3) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/broccli/v3)](https://goreportcard.com/report/github.com/keenbytes/broccli/v3)
 
+![broccli](broccli.png "broccli")
+
 ----
 
 The `keenbytes/broccli/v3` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
