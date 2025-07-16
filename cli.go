@@ -9,6 +9,7 @@ import (
 	"path"
 	"reflect"
 	"sort"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -174,15 +175,23 @@ func (c *Broccli) sortedEnv() []string {
 }
 
 func (c *Broccli) printHelp() {
-	_, _ = fmt.Fprintf(os.Stdout, "%s by %s\n%s\n\n", c.name, c.author, c.usage)
-	_, _ = fmt.Fprintf(os.Stdout, "Usage: %s COMMAND\n\n", path.Base(os.Args[0]))
+	var helpMessage strings.Builder
+
+	_, _ = fmt.Fprintf(
+		&helpMessage,
+		"%s by %s\n%s\n\nUsage: %s COMMAND\n\n",
+		c.name,
+		c.author,
+		c.usage,
+		path.Base(os.Args[0]),
+	)
 
 	if len(c.env) > 0 {
-		_, _ = fmt.Fprintf(os.Stdout, "Required environment variables:\n")
+		_, _ = fmt.Fprintf(&helpMessage, "Required environment variables:\n")
 
 		tabFormatter := new(tabwriter.Writer)
 		tabFormatter.Init(
-			os.Stdout,
+			&helpMessage,
 			tabWriterMinWidth,
 			tabWriterTabWidth,
 			tabWriterPadding,
@@ -197,11 +206,11 @@ func (c *Broccli) printHelp() {
 		_ = tabFormatter.Flush()
 	}
 
-	_, _ = fmt.Fprintf(os.Stdout, "Commands:\n")
+	_, _ = fmt.Fprintf(&helpMessage, "Commands:\n")
 
 	tabFormatter := new(tabwriter.Writer)
 	tabFormatter.Init(
-		os.Stdout,
+		&helpMessage,
 		tabWriterMinWidthForCommand,
 		tabWriterTabWidth,
 		tabWriterPadding,
@@ -210,16 +219,21 @@ func (c *Broccli) printHelp() {
 	)
 
 	for _, commandName := range c.sortedCommands() {
-		_, _ = fmt.Fprintf(tabFormatter, "  %s\t%s\n", commandName, c.commands[commandName].usage)
+		_, _ = fmt.Fprintf(&helpMessage, "  %s\t%s\n", commandName, c.commands[commandName].usage)
 	}
 
 	_ = tabFormatter.Flush()
 
 	_, _ = fmt.Fprintf(
-		os.Stdout,
+		&helpMessage,
 		"\nRun '%s COMMAND --help' for command syntax.\n",
 		path.Base(os.Args[0]),
 	)
+
+	_, err := fmt.Fprint(os.Stdout, helpMessage.String())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Unable to build help message")
+	}
 }
 
 func (c *Broccli) printInvalidCommand(cmd string) {
@@ -251,7 +265,10 @@ func (c *Broccli) getFlagSetPtrs(
 		}
 	}
 
-	_ = fset.Parse(os.Args[2:])
+	err := fset.Parse(os.Args[2:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Unable to parse flags: %s", err.Error())
+	}
 
 	return flagNamePtrs, flagAliasPtrs, fset.Args()
 }

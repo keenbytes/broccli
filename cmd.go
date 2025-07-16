@@ -8,6 +8,7 @@ import (
 	"path"
 	"reflect"
 	"sort"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -165,16 +166,18 @@ func (c *Command) sortedEnv() []string {
 
 // PrintHelp prints command usage information to stdout file.
 func (c *Command) printHelp() {
-	_, _ = fmt.Fprintf(os.Stdout, "\nUsage:  %s %s [FLAGS]%s\n\n", path.Base(os.Args[0]), c.name,
+	var helpMessage strings.Builder
+
+	_, _ = fmt.Fprintf(&helpMessage, "\nUsage:  %s %s [FLAGS]%s\n\n", path.Base(os.Args[0]), c.name,
 		c.argsHelpLine())
-	_, _ = fmt.Fprintf(os.Stdout, "%s\n", c.usage)
+	_, _ = fmt.Fprintf(&helpMessage, "%s\n", c.usage)
 
 	if len(c.env) > 0 {
-		_, _ = fmt.Fprintf(os.Stdout, "\nRequired environment variables:\n")
+		_, _ = fmt.Fprintf(&helpMessage, "\nRequired environment variables:\n")
 
 		tabFormatter := new(tabwriter.Writer)
 		tabFormatter.Init(
-			os.Stdout,
+			&helpMessage,
 			tabWriterMinWidth,
 			tabWriterTabWidth,
 			tabWriterPadding,
@@ -191,7 +194,7 @@ func (c *Command) printHelp() {
 
 	tabFormatter := new(tabwriter.Writer)
 	tabFormatter.Init(
-		os.Stdout,
+		&helpMessage,
 		tabWriterMinWidth,
 		tabWriterTabWidth,
 		tabWriterPadding,
@@ -220,6 +223,11 @@ func (c *Command) printHelp() {
 		_, _ = fmt.Fprintf(tabFormatter, "\nOptional flags: \n")
 		_, _ = fmt.Fprintf(tabFormatter, usageFlags[1])
 		_ = tabFormatter.Flush()
+	}
+
+	_, err := fmt.Fprint(os.Stdout, helpMessage.String())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Unable to build help message")
 	}
 }
 
