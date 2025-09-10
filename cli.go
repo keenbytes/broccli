@@ -258,10 +258,14 @@ func (c *Broccli) getFlagSetPtrs(
 		flagInstance := cmd.flags[flagName]
 		if flagInstance.valueType == TypeBool {
 			flagNamePtrs[flagName] = fset.Bool(flagName, false, "")
-			flagAliasPtrs[flagInstance.alias] = fset.Bool(flagInstance.alias, false, "")
+			if flagInstance.alias != "" {
+				flagAliasPtrs[flagInstance.alias] = fset.Bool(flagInstance.alias, false, "")
+			}
 		} else {
 			flagNamePtrs[flagName] = fset.String(flagName, "", "")
-			flagAliasPtrs[flagInstance.alias] = fset.String(flagInstance.alias, "", "")
+			if flagInstance.alias != "" {
+				flagAliasPtrs[flagInstance.alias] = fset.String(flagInstance.alias, "", "")
+			}
 		}
 	}
 
@@ -335,7 +339,7 @@ func (c *Broccli) processFlags(
 		if flag.valueType == TypeBool {
 			c.parsedFlags[name] = "false"
 			//nolint:forcetypeassert
-			if *(nflags[name]).(*bool) || *(aflags[cmd.flags[name].alias]).(*bool) {
+			if *(nflags[name]).(*bool) || (cmd.flags[name].alias != "" && *(aflags[cmd.flags[name].alias]).(*bool)) {
 				c.parsedFlags[name] = "true"
 			}
 
@@ -343,7 +347,10 @@ func (c *Broccli) processFlags(
 		}
 
 		//nolint:forcetypeassert
-		aliasValue := *(aflags[flag.alias]).(*string)
+		aliasValue := ""
+		if flag.alias != "" {
+			aliasValue = *(aflags[flag.alias]).(*string)
+		}
 		//nolint:forcetypeassert
 		nameValue := *(nflags[name]).(*string)
 
