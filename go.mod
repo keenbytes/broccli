@@ -1,3 +1,3 @@
-module github.com/keenbytes/broccli/v3
+module miko.gs/broccli/v3
 
-go 1.22.1
+go 1.25.0

@@ -14,7 +14,7 @@ linters:
         main:
           allow:
             - $gostd
-            - github.com/keenbytes/broccli/v3
+            - gopkg.gasior.dev/broccli/v3
   exclusions:
     generated: disable
     rules:

@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/keenbytes/broccli/v3"
+	"miko.gs/broccli/v3"
 )
 
 func main() {

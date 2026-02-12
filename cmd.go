@@ -202,26 +202,27 @@ func (c *Command) printHelp() {
 		0,
 	)
 
-	var usageFlags [2]string
+	var requiredFlags string
+	var optionalFlags string
 
 	for _, flagName := range c.sortedFlags() {
 		flag := c.flags[flagName]
 		if flag.flags&IsRequired > 0 {
-			usageFlags[0] += flag.helpLine()
+			requiredFlags += flag.helpLine()
 		} else {
-			usageFlags[1] += flag.helpLine()
+			optionalFlags += flag.helpLine()
 		}
 	}
 
-	if usageFlags[0] != "" {
+	if requiredFlags != "" {
 		_, _ = fmt.Fprintf(tabFormatter, "\nRequired flags: \n")
-		_, _ = fmt.Fprintf(tabFormatter, usageFlags[0])
+		_, _ = fmt.Fprintf(tabFormatter, "%s", requiredFlags)
 		_ = tabFormatter.Flush()
 	}
 
-	if usageFlags[1] != "" {
+	if optionalFlags != "" {
 		_, _ = fmt.Fprintf(tabFormatter, "\nOptional flags: \n")
-		_, _ = fmt.Fprintf(tabFormatter, usageFlags[1])
+		_, _ = fmt.Fprintf(tabFormatter, "%s", optionalFlags)
 		_ = tabFormatter.Flush()
 	}
 

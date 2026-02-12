@@ -1,10 +1,8 @@
 # broccli
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/broccli/v3.svg)](https://pkg.go.dev/github.com/keenbytes/broccli/v3) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/broccli/v3)](https://goreportcard.com/report/github.com/keenbytes/broccli/v3)
-
 ![broccli](broccli.png "broccli")
 
-The `keenbytes/broccli/v3` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
+The `broccli/v3` package simplifies command line interface management. It allows you to define commands complete with arguments and flags, and attach handlers to them. The package handles all the parsing automatically.
 
 :warning: `v3` is not compatible with `v2`. The latest version requires a context in handlers and when calling `Run` method. Also
 methods for adding commands, args etc. have been shortened to `Command`, `Arg`, `Flag` and `Env`.
@@ -28,7 +26,7 @@ However, the following code snippet from another tiny project shows how the modu
 
 Import the code with the following URL:
 ```go
-import "github.com/keenbytes/broccli/v3"
+import "miko.gs/broccli/v3"
 ```
 
 ```go
